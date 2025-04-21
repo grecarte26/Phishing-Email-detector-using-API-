@@ -1,0 +1,77 @@
+# -----------------------------------------------
+# 🛡️ Phishing Email Detector (Gradio UI)
+# Created by Jerson Recarte for Dr. Jain's LLM project
+# -----------------------------------------------
+
+# Dr. Jain,
+# This tool is part of my Week 2 LLM assignment. It uses GPT-4 via the OpenAI API
+# to analyze email content and identify potential phishing attempts.
+# The goal is to provide a simple, interactive interface for testing LLMs in cybersecurity use cases.
+
+# Instead of manually inspecting suspicious messages, users paste the content into
+# a textbox, and the model returns a clear verdict with reasoning.
+
+# This project loads the API key from a .env file to ensure secure, local testing.
+# The system is lightweight and can run on any local Python environment with internet access.
+
+# ✅ NOTE TO DR. JAIN:
+# Make sure to create a file named `.env` in the same folder as this script.
+# Inside that `.env` file, add the following line with your actual OpenAI API key:
+# OPENAI_API_KEY=sk-your_actual_key_here
+
+import os
+import openai
+import gradio as gr
+from dotenv import load_dotenv
+
+# 🔐 Load OpenAI API key securely from a .env file
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=api_key)
+
+# 🔍 Define phishing detection logic using GPT-4
+
+def detect_phishing(email_text):
+    prompt = f"""
+You are a cybersecurity assistant. Analyze the following email and determine if it is a phishing attempt. 
+Reply with either \"Phishing\" or \"Not Phishing\", and give a short reason why.
+
+Email:
+\"\"\"
+{email_text}
+\"\"\"
+"""
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.2
+    )
+    return response.choices[0].message.content.strip()
+
+# 🌟 Launch a Gradio interface for ease of use
+interface = gr.Interface(
+    fn=detect_phishing,
+    inputs=gr.Textbox(lines=15, label="📧 Paste Suspicious Email Here"),
+    outputs=gr.Textbox(label="🛡️ Detection Result"),
+    title="Phishing Email Detector",
+    description="Paste a suspicious email to check if it's a phishing attempt using GPT-4."
+)
+
+# 🚀 Start the Gradio app in the browser
+interface.launch()
+
+# -----------------------------------------------
+# 🧪 How to Use This Project:
+# -----------------------------------------------
+# 1. Create a `.env` file in the same folder as this script.
+# 2. Add the following line (replace with your actual OpenAI key):
+#    OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# 3. Install dependencies if not already installed:
+#    pip install openai gradio python-dotenv
+# 4. Run this script in a terminal or Jupyter notebook.
+# 5. A Gradio web app will open in your browser.
+# 6. Paste any suspicious email text and receive an AI-generated phishing assessment.
+# -----------------------------------------------
+
+# Thank you for reviewing this submission!
+# I look forward to expanding this tool with file upload support, logs parsing, or classification features 
